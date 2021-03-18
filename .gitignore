@@ -1,0 +1,3 @@
+auctions/__pycache__/*.pyc
+auctions/migrations/__pycache__/*.pyc
+commerce/__pycache__/*.pyc

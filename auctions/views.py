@@ -16,7 +16,12 @@ class ListingForm(forms.ModelForm):
 
 
 def index(request):
-    return render(request, "auctions/index.html")
+    # get list of active listings
+    listings = Listing.objects.filter(is_active=True)
+    print(listings)
+    return render(request, "auctions/index.html", {
+        "listings": listings
+    })
 
 
 def login_view(request):

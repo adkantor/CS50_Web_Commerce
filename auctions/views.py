@@ -3,8 +3,16 @@ from django.db import IntegrityError
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
 from django.urls import reverse
+from django import forms
 
-from .models import User
+from .models import User, Listing
+
+
+class ListingForm(forms.ModelForm):
+    """ Form to create a new listing. """
+    class Meta:
+        model = Listing
+        fields = ['title', 'description', 'starting_bid', 'image_url', 'category']
 
 
 def index(request):
@@ -61,3 +69,27 @@ def register(request):
         return HttpResponseRedirect(reverse("index"))
     else:
         return render(request, "auctions/register.html")
+
+
+def create_listing(request):
+    if request.method == 'POST':
+        # load the contents of the posted form into a variable
+        form = ListingForm(request.POST)
+        
+        # validate by server
+        if form.is_valid():
+            listing = form.save(commit=False)
+            listing.created_by = request.user
+            listing.save()
+            return HttpResponseRedirect(reverse("index"))
+        else:
+            # return the filled-in form with error message
+            return render(request, "auctions/createlisting.html", {
+                "message": "Invalid form data",
+                "form": form
+            })
+    
+    else:
+        return render(request, "auctions/createlisting.html", {
+            "form": ListingForm()
+        })

@@ -98,3 +98,29 @@ def create_listing(request):
         return render(request, "auctions/createlisting.html", {
             "form": ListingForm()
         })
+
+
+def show_listing(request, listing_id):
+    listing = Listing.objects.get(pk=listing_id)
+    # TODO: if listing then ... else ... -> esetleg hthml-ben, ha none
+    return render(request, "auctions/showlisting.html", {
+        "listing": listing
+    })
+
+def add_to_watchlist(request):
+    listing_id = int(request.GET.get('listingId'))
+    listing = Listing.objects.get(pk=listing_id)
+    request.user.watchlisted_items.add(listing)
+    print(f'Add to watchlist: \n{listing}')
+    return render(request, "auctions/showlisting.html", {
+        "listing": listing
+    })
+
+def remove_from_watchlist(request):
+    listing_id = int(request.GET.get('listingId'))
+    listing = Listing.objects.get(pk=listing_id)
+    request.user.watchlisted_items.remove(listing)
+    print(f'Remove from watchlist: \n{listing}')
+    return render(request, "auctions/showlisting.html", {
+        "listing": listing
+    })

@@ -24,6 +24,7 @@ class Listing(models.Model):
     created_time = models.DateTimeField(auto_now_add=True, null=True)
     last_modified = models.DateTimeField(auto_now=True, null=True)
     is_active = models.BooleanField(default=True)
+    watchlisted_by = models.ManyToManyField(User, blank=True, related_name='watchlisted_items')
 
 
 class Bid(models.Model):

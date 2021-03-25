@@ -45,30 +45,51 @@
             <p class="">{{ listing.description }}</p>
         </div>
         <div class="row">
-            <p class="current-bid-price">${{ current_bid.price }}</p>
-            <!-- |default:listing.starting_bid -->
+            <!-- <p class="current-bid-price">${{ current_bid.price|default:listing.starting_bid }}</p> -->
+            <p class="current-bid-price">${{ listing.current_bid.price|default:listing.starting_bid }}</p>
         </div>
         <div class="row">
             <p class="">{{ listing.bids.count }} bid(s) so far. </p>
         </div>
         
-        <!-- form to make a bid -->
+        
         {% if user.is_authenticated %}
-            <div class="row">
-                <form class="make-bid-form" action="{% url 'make_bid' %}" method="post">
-                    {% csrf_token %}
-                    <label for="bidPrice">Place a bid:</label>
-                    <input type="hidden" name="listingId" value="{{ listing.id }}">
-                    <input type="number" id="bidPrice" name="bidPrice" min="{{ current_bid.price|add:'1' }}" step="0.01">
-                    <div>
-                        <button class="btn btn-primary" type=submit>Submit</button>
-                    </div>
-                </form> 
-            </div>
+            
+            <!-- if user is not the creator then show form to make a bid -->
+            {% if user.id != listing.created_by.id %}
+
+                <div class="row">
+                    <form class="make-bid-form" action="{% url 'make_bid' %}" method="post">
+                        {% csrf_token %}
+                        <label for="bidPrice">Place a bid:</label>
+                        <input type="hidden" name="listingId" value="{{ listing.id }}">
+                        <input type="number" id="bidPrice" name="bidPrice" min="{{ listing.current_bid.price|add:'1' }}" step="0.01">
+                        <div>
+                            <button class="btn btn-primary" type=submit>Submit</button>
+                        </div>
+                    </form> 
+                </div>
+            
+            <!-- if user is the creator then show button to close the auction -->
+            {% else %}
+                <div class="row">   
+                    <form class="close-auction-form" action="{% url 'close_auction' %}" method="post">
+                        {% csrf_token %}
+                        <input type="hidden" name="listingId" value="{{ listing.id }}">
+                        <div>
+                            <button class="btn btn-primary" type=submit onclick="return confirm('Are you sure?');">Close auction</button>
+                        </div>
+                    </form> 
+                </div>
+
+            {% endif %}
+        
         {% else %}
+
             <div class="row">
                 <p class="">Please <a href="{% url 'login' %}?next={% url 'show_listing' listing.id %}">log in</a> to place a bid</p>
             </div>
+
         {% endif %}
 
         <!-- listing other details -->

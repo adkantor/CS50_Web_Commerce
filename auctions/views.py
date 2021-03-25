@@ -6,7 +6,6 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
 from django.urls import reverse
 from django import forms
-from django.db.models import Max
 
 from .models import User, Listing, Bid
 
@@ -114,13 +113,9 @@ def show_listing(request, listing_id):
 
     # get listing
     listing = Listing.objects.get(pk=listing_id)
-    current_bid = get_current_bid(listing)
-    print(listing)
-    print(current_bid)
     # show the page
     return render(request, "auctions/showlisting.html", {
         "listing": listing,
-        "current_bid": get_current_bid(listing),
     })
 
 
@@ -137,7 +132,6 @@ def add_to_watchlist(request):
     # return to the page
     return render(request, "auctions/showlisting.html", {
         "listing": listing,
-        "current_bid": get_current_bid(listing),
     })
 
 
@@ -154,7 +148,6 @@ def remove_from_watchlist(request):
     # return to the page
     return render(request, "auctions/showlisting.html", {
         "listing": listing,
-        "current_bid": get_current_bid(listing),
     })
 
 @login_required(login_url='login')
@@ -168,7 +161,7 @@ def make_bid(request):
     bid_price = float(request.POST.get('bidPrice'))
     
     # check if bid price > current bid
-    if bid_price > get_current_bid(listing).price:
+    if bid_price > listing.current_bid(listing).price:
        
         # create the new bid
         bid = Bid(
@@ -181,7 +174,6 @@ def make_bid(request):
         # return to the page
         return render(request, "auctions/showlisting.html", {
             "listing": listing,
-            "current_bid": get_current_bid(listing),
         })
     
     else:
@@ -190,14 +182,8 @@ def make_bid(request):
         return render(request, "auctions/showlisting.html", {
             "message": "Invalid bid (new bid price must be higher than current bid)",
             "listing": listing,
-            "current_bid": get_current_bid(listing),
         })
 
 
-def get_current_bid(listing):
-    """ Helper function to get current bid from database. """
-    current_bid = None
-    max_bid_price = listing.bids.aggregate(max_bid=Max('price'))['max_bid']
-    if max_bid_price:
-        current_bid = Bid.objects.get(listing=listing, price=max_bid_price)
-    return current_bid
+def close_auction(request):
+    pass

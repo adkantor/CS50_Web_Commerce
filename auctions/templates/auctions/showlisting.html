@@ -45,15 +45,13 @@
             <p class="">{{ listing.description }}</p>
         </div>
         <div class="row">
-            <p class="">{{ listing.bids.count }} bid(s) so far.</p>
+            <p class="current-bid-price">${{ current_bid.price }}</p>
+            <!-- |default:listing.starting_bid -->
         </div>
         <div class="row">
-            <p class="">Starting bid: ${{ listing.starting_bid }}</p>
+            <p class="">{{ listing.bids.count }} bid(s) so far. </p>
         </div>
-        <div class="row">
-            <p class="">Current bid: ${{ current_bid }}</p>
-        </div>
-
+        
         <!-- form to make a bid -->
         {% if user.is_authenticated %}
             <div class="row">
@@ -61,7 +59,7 @@
                     {% csrf_token %}
                     <label for="bidPrice">Place a bid:</label>
                     <input type="hidden" name="listingId" value="{{ listing.id }}">
-                    <input type="number" id="bidPrice" name="bidPrice" min="{{ current_bid|add:'1' }}" step="0.01">
+                    <input type="number" id="bidPrice" name="bidPrice" min="{{ current_bid.price|add:'1' }}" step="0.01">
                     <div>
                         <button class="btn btn-primary" type=submit>Submit</button>
                     </div>

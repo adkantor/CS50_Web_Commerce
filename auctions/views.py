@@ -84,6 +84,8 @@ def register(request):
 
 
 def create_listing(request):
+    """ Records a new listing to the database """
+    
     if request.method == 'POST':
         # load the contents of the posted form into a variable
         form = ListingForm(request.POST)
@@ -112,6 +114,9 @@ def show_listing(request, listing_id):
 
     # get listing
     listing = Listing.objects.get(pk=listing_id)
+    current_bid = get_current_bid(listing)
+    print(listing)
+    print(current_bid)
     # show the page
     return render(request, "auctions/showlisting.html", {
         "listing": listing,
@@ -154,31 +159,45 @@ def remove_from_watchlist(request):
 
 @login_required(login_url='login')
 def make_bid(request):
+    """ Records a new bid to the database. """
+    
     # get listing
     listing_id = int(request.POST.get('listingId'))
     listing = Listing.objects.get(pk=listing_id)
     # get bid price
     bid_price = float(request.POST.get('bidPrice'))
     
-    # create the new bid
-    bid = Bid(
-        bidder=request.user, 
-        listing=listing,
-        price=bid_price
-    )
-    bid.save()
+    # check if bid price > current bid
+    if bid_price > get_current_bid(listing).price:
+       
+        # create the new bid
+        bid = Bid(
+            bidder=request.user, 
+            listing=listing,
+            price=bid_price
+        )
+        bid.save()
+        
+        # return to the page
+        return render(request, "auctions/showlisting.html", {
+            "listing": listing,
+            "current_bid": get_current_bid(listing),
+        })
     
-    # return to the page
-    return render(request, "auctions/showlisting.html", {
-        "listing": listing,
-        "current_bid": get_current_bid(listing),
-    })
+    else:
+        
+        # show error message
+        return render(request, "auctions/showlisting.html", {
+            "message": "Invalid bid (new bid price must be higher than current bid)",
+            "listing": listing,
+            "current_bid": get_current_bid(listing),
+        })
 
 
 def get_current_bid(listing):
     """ Helper function to get current bid from database. """
-    
-    # get max bid price, if exists (else 0)
-    max_bid = listing.bids.aggregate(max_bid=Max('price'))['max_bid'] or 0
-    current_bid = max(max_bid, listing.starting_bid)
+    current_bid = None
+    max_bid_price = listing.bids.aggregate(max_bid=Max('price'))['max_bid']
+    if max_bid_price:
+        current_bid = Bid.objects.get(listing=listing, price=max_bid_price)
     return current_bid

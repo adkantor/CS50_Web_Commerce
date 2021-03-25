@@ -1,11 +1,14 @@
 from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.decorators import login_required
 from django.db import IntegrityError
+from django.forms.widgets import NumberInput
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
 from django.urls import reverse
 from django import forms
+from django.db.models import Max
 
-from .models import User, Listing
+from .models import User, Listing, Bid
 
 
 class ListingForm(forms.ModelForm):
@@ -39,7 +42,7 @@ def login_view(request):
             if next:
                 return HttpResponseRedirect(next)
             else:
-            return HttpResponseRedirect(reverse("index"))
+                return HttpResponseRedirect(reverse("index"))
         else:
             return render(request, "auctions/login.html", {
                 "message": "Invalid username and/or password."
@@ -105,26 +108,77 @@ def create_listing(request):
 
 
 def show_listing(request, listing_id):
+    """ Shows a page specific to the listing given as parameter. """
+
+    # get listing
     listing = Listing.objects.get(pk=listing_id)
-    # TODO: if listing then ... else ... -> esetleg hthml-ben, ha none
+    # show the page
     return render(request, "auctions/showlisting.html", {
-        "listing": listing
+        "listing": listing,
+        "current_bid": get_current_bid(listing),
     })
 
+
+@login_required(login_url='login')
 def add_to_watchlist(request):
-    listing_id = int(request.GET.get('listingId'))
+    """ Adds the listing to the user's watchlist. """
+    
+    # get listing
+    listing_id = int(request.POST.get('listingId'))
     listing = Listing.objects.get(pk=listing_id)
+    # add to user's watchlist
     request.user.watchlisted_items.add(listing)
-    print(f'Add to watchlist: \n{listing}')
+    
+    # return to the page
     return render(request, "auctions/showlisting.html", {
-        "listing": listing
+        "listing": listing,
+        "current_bid": get_current_bid(listing),
     })
 
+
+@login_required(login_url='login')
 def remove_from_watchlist(request):
-    listing_id = int(request.GET.get('listingId'))
+    """ Removes the listing from the user's watchlist. """
+
+    # get listing
+    listing_id = int(request.POST.get('listingId'))
     listing = Listing.objects.get(pk=listing_id)
+    # remove from user's watchlist
     request.user.watchlisted_items.remove(listing)
-    print(f'Remove from watchlist: \n{listing}')
+    
+    # return to the page
     return render(request, "auctions/showlisting.html", {
-        "listing": listing
+        "listing": listing,
+        "current_bid": get_current_bid(listing),
     })
+
+@login_required(login_url='login')
+def make_bid(request):
+    # get listing
+    listing_id = int(request.POST.get('listingId'))
+    listing = Listing.objects.get(pk=listing_id)
+    # get bid price
+    bid_price = float(request.POST.get('bidPrice'))
+    
+    # create the new bid
+    bid = Bid(
+        bidder=request.user, 
+        listing=listing,
+        price=bid_price
+    )
+    bid.save()
+    
+    # return to the page
+    return render(request, "auctions/showlisting.html", {
+        "listing": listing,
+        "current_bid": get_current_bid(listing),
+    })
+
+
+def get_current_bid(listing):
+    """ Helper function to get current bid from database. """
+    
+    # get max bid price, if exists (else 0)
+    max_bid = listing.bids.aggregate(max_bid=Max('price'))['max_bid'] or 0
+    current_bid = max(max_bid, listing.starting_bid)
+    return current_bid

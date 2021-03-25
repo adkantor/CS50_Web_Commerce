@@ -11,25 +11,27 @@
     <div class="container">
 
         <!-- Button to add to / remove from watchlist -->
-        {% if listing not in user.watchlisted_items.all %}
-            <form class="add-to-watchlist-form" action="{% url 'add_to_watchlist' %}" method="get">
-                {% csrf_token %}
-                <input type="hidden" name="listingId" value="{{ listing.id }}">
-                <div>
-                    <button class="btn btn-primary" type=submit>Watchlist</button>
-                </div>
-            </form> 
-        {% else %}
-            <form class="remove-from-watchlist-form" action="{% url 'remove_from_watchlist' %}" method="get">
-                {% csrf_token %}
-                <input type="hidden" name="listingId" value="{{ listing.id }}">
-                <div>
-                    <button class="btn btn-primary" type=submit>Remove from watchlist</button>
-                </div>
-            </form> 
+        {% if user.is_authenticated %}
+            {% if listing not in user.watchlisted_items.all %}
+                <form class="add-to-watchlist-form" action="{% url 'add_to_watchlist' %}" method="post">
+                    {% csrf_token %}
+                    <input type="hidden" name="listingId" value="{{ listing.id }}">
+                    <div>
+                        <button class="btn btn-secondary" type=submit>Watchlist</button>
+                    </div>
+                </form> 
+            {% else %}
+                <form class="remove-from-watchlist-form" action="{% url 'remove_from_watchlist' %}" method="post">
+                    {% csrf_token %}
+                    <input type="hidden" name="listingId" value="{{ listing.id }}">
+                    <div>
+                        <button class="btn btn-primary" type=submit>Remove from watchlist</button>
+                    </div>
+                </form> 
+            {% endif %}
         {% endif %}
 
-        <!-- listing details -->
+        <!-- listing main parameters -->
         <div class="row align-self-center">
             {% if listing.image_url %}
                 <!-- if an image url is available -->
@@ -43,17 +45,35 @@
             <p class="">{{ listing.description }}</p>
         </div>
         <div class="row">
-            <p class="">${{ listing.starting_bid }}</p>
-        </div>
-        <div class="row">
             <p class="">{{ listing.bids.count }} bid(s) so far.</p>
         </div>
-        
         <div class="row">
-            <!-- form to make a bid -->
-            <form></form>
+            <p class="">Starting bid: ${{ listing.starting_bid }}</p>
         </div>
-        
+        <div class="row">
+            <p class="">Current bid: ${{ current_bid }}</p>
+        </div>
+
+        <!-- form to make a bid -->
+        {% if user.is_authenticated %}
+            <div class="row">
+                <form class="make-bid-form" action="{% url 'make_bid' %}" method="post">
+                    {% csrf_token %}
+                    <label for="bidPrice">Place a bid:</label>
+                    <input type="hidden" name="listingId" value="{{ listing.id }}">
+                    <input type="number" id="bidPrice" name="bidPrice" min="{{ current_bid|add:'1' }}" step="0.01">
+                    <div>
+                        <button class="btn btn-primary" type=submit>Submit</button>
+                    </div>
+                </form> 
+            </div>
+        {% else %}
+            <div class="row">
+                <p class="">Please <a href="{% url 'login' %}?next={% url 'show_listing' listing.id %}">log in</a> to place a bid</p>
+            </div>
+        {% endif %}
+
+        <!-- listing other details -->
         <div class="row">
             <h3>Details</h3>
         </div>

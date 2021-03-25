@@ -11,12 +11,18 @@ class Listing(models.Model):
     """ Class to represent a listing. """
     
     def current_bid(self):
-        """ Helper function to get highest bid for this listing. """
-        bid = None
+        """ Returns the highest bid for this listing (if has a valid bid). Returns None otherwise. """
         max_bid_price = self.bids.aggregate(max_bid=Max('price'))['max_bid']
         if max_bid_price:
-            bid = Bid.objects.get(listing=self, price=max_bid_price)
-        return bid
+            return Bid.objects.get(listing=self, price=max_bid_price)
+        return None
+
+    def winner(self):
+        """ Returns the winner of this listing (if closed and has a valid bid). Returns None otherwise. """
+        highest_bid = self.current_bid()
+        if not self.is_active and highest_bid:
+            return highest_bid.bidder
+        return None
     
     CATEGORIES = [
         ("fashion", "Fashion"),

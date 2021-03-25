@@ -20,7 +20,6 @@ class ListingForm(forms.ModelForm):
 def index(request):
     # get list of active listings
     listings = Listing.objects.filter(is_active=True)
-    print(listings)
     return render(request, "auctions/index.html", {
         "listings": listings
     })
@@ -160,9 +159,15 @@ def make_bid(request):
     # get bid price
     bid_price = float(request.POST.get('bidPrice'))
     
-    # check if bid price > current bid
-    if bid_price > listing.current_bid(listing).price:
+    # if there is a bid and bid price not higher then current bid -> error
+    if listing.current_bid() and bid_price <= listing.current_bid().price:
+        # show error message
+        return render(request, "auctions/showlisting.html", {
+            "message": "Invalid bid (new bid price must be higher than current bid)",
+            "listing": listing,
+        })
        
+    else:       
         # create the new bid
         bid = Bid(
             bidder=request.user, 
@@ -176,14 +181,31 @@ def make_bid(request):
             "listing": listing,
         })
     
-    else:
         
+@login_required
+def close_auction(request):
+    
+    # get listing
+    listing_id = int(request.POST.get('listingId'))
+    listing = Listing.objects.get(pk=listing_id)
+
+    # check if user is the one who created the listing
+    if listing.created_by.id != request.user.id:
         # show error message
         return render(request, "auctions/showlisting.html", {
-            "message": "Invalid bid (new bid price must be higher than current bid)",
+            "message": "You have no permission to perform this operation!",
             "listing": listing,
         })
 
+    # close listing
+    listing.is_active = False
+    listing.save()
+
+    print(listing.winner())
+    return render(request, "auctions/showlisting.html", {
+        "message": "Auction has been closed.",
+        "listing": listing,
+    })
 
 def close_auction(request):
     pass

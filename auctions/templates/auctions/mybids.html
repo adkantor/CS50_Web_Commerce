@@ -20,7 +20,7 @@
                         <h5 class="card-title">{{ listing.title }}</h5>
                         <p class="card-text">
                             <b>Status:</b> {{ listing.is_active|yesno:"Active,Closed,Unknown" }}
-                            {% if not listing.is_active and listing.current_bid.bidder == user %} - <b>You won the auction</b> {% endif %}
+                            {% if listing.winner == user %} - <b>You won the auction</b> {% endif %}
                         </p>
                         <p class="card-text"><b>Price:</b> ${{ listing.current_bid.price|default:listing.starting_bid }}</p>
                         <p class="card-text">{{ listing.description|truncatewords:30 }}</p>

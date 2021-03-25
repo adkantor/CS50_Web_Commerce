@@ -30,11 +30,15 @@ def login_view(request):
         # Attempt to sign user in
         username = request.POST["username"]
         password = request.POST["password"]
+        next = request.POST["next"]
         user = authenticate(request, username=username, password=password)
 
         # Check if authentication successful
         if user is not None:
             login(request, user)
+            if next:
+                return HttpResponseRedirect(next)
+            else:
             return HttpResponseRedirect(reverse("index"))
         else:
             return render(request, "auctions/login.html", {

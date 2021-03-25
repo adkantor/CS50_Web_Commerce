@@ -51,5 +51,9 @@ class Bid(models.Model):
 
 
 class Comment(models.Model):
-    pass 
+    created_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name='comments', null=True)
+    created_time = models.DateTimeField(auto_now_add=True, null=True)
+    listing = models.ForeignKey(Listing, on_delete=models.CASCADE, related_name='comments', null=True)
+    text = models.TextField(blank=True, null=True)
+
 

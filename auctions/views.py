@@ -7,7 +7,7 @@ from django.shortcuts import render
 from django.urls import reverse
 from django import forms
 
-from .models import User, Listing, Bid
+from .models import User, Listing, Bid, Comment
 
 
 class ListingForm(forms.ModelForm):
@@ -129,9 +129,7 @@ def add_to_watchlist(request):
     request.user.watchlisted_items.add(listing)
     
     # return to the page
-    return render(request, "auctions/showlisting.html", {
-        "listing": listing,
-    })
+    return HttpResponseRedirect(reverse("show_listing", args=[listing_id]))
 
 
 @login_required(login_url='login')
@@ -145,9 +143,8 @@ def remove_from_watchlist(request):
     request.user.watchlisted_items.remove(listing)
     
     # return to the page
-    return render(request, "auctions/showlisting.html", {
-        "listing": listing,
-    })
+    return HttpResponseRedirect(reverse("show_listing", args=[listing_id]))
+
 
 @login_required(login_url='login')
 def make_bid(request):
@@ -177,9 +174,7 @@ def make_bid(request):
         bid.save()
         
         # return to the page
-        return render(request, "auctions/showlisting.html", {
-            "listing": listing,
-        })
+        return HttpResponseRedirect(reverse("show_listing", args=[listing_id]))
 
 
 @login_required
@@ -232,3 +227,23 @@ def my_watchlist(request):
     return render(request, "auctions/mywatchlist.html", {
         "listings": listings
     })
+
+@login_required
+def make_comment(request):
+    
+    # get listing
+    listing_id = int(request.POST.get('listingId'))
+    listing = Listing.objects.get(pk=listing_id)
+    # get bid price
+    text = request.POST.get('commentText')
+
+    # create the new comment
+    comment = Comment(
+        created_by=request.user, 
+        listing=listing,
+        text=text
+    )
+    comment.save()
+    
+    # return to the page
+    return HttpResponseRedirect(reverse("show_listing", args=[listing_id])) 

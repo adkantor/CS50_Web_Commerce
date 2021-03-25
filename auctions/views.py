@@ -166,7 +166,7 @@ def make_bid(request):
             "message": "Invalid bid (new bid price must be higher than current bid)",
             "listing": listing,
         })
-       
+    
     else:       
         # create the new bid
         bid = Bid(
@@ -180,8 +180,8 @@ def make_bid(request):
         return render(request, "auctions/showlisting.html", {
             "listing": listing,
         })
-    
-        
+
+
 @login_required
 def close_auction(request):
     
@@ -207,5 +207,28 @@ def close_auction(request):
         "listing": listing,
     })
 
-def close_auction(request):
-    pass
+
+@login_required
+def my_auctions(request):
+    # get list of auctions created by current user
+    listings = Listing.objects.filter(created_by=request.user)
+    return render(request, "auctions/myauctions.html", {
+        "listings": listings
+    })
+
+
+@login_required
+def my_bids(request):
+    # get list of auctions where current user placed a bid
+    listings = Listing.objects.filter(bids__bidder=request.user).distinct()
+    return render(request, "auctions/mybids.html", {
+        "listings": listings
+    })
+
+@login_required
+def my_watchlist(request):
+    # get list of auctions where current user placed a bid
+    listings = Listing.objects.filter(watchlisted_by=request.user)
+    return render(request, "auctions/mywatchlist.html", {
+        "listings": listings
+    })

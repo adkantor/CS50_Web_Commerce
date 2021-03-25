@@ -4,6 +4,7 @@
     <h2>Active Listings</h2>
 
     {% for listing in listings %}
+        <!-- listing items as bootstrap card -->
         <div class="card mb-3" style="max-width: 100%;">
             <div class="row g-0">
                 <div class="col-md-4 align-self-center">
@@ -22,14 +23,13 @@
                         <p class="card-text"><small class="text-muted">Created {{ listing.created_time }}</small></p>
                     </div>
                 </div>
-                <a href="#" class="stretched-link"></a>
+                <a href="{% url 'show_listing' listing.id %}" class="stretched-link"></a>
             </div>
         </div>
 
-        <!-- <ul>
-            <li>{{ listing.category }}</li>
-            <li>{{ listing.created_by }}</li>
-            <li>{{ listing.last_modified }}</li>
-        </ul> -->
+    {% empty %}
+
+        <div>No listings yet.</div>
+
     {% endfor %}
 {% endblock %}

@@ -252,3 +252,25 @@ def make_comment(request):
     
     # return to the page
     return HttpResponseRedirect(reverse("show_listing", args=[listing_id])) 
+
+
+def list_categories(request):
+    """ Page that displays a list of all listing categories """
+    
+    # get category counts
+    categories = Listing.category_counts()
+
+    return render(request, "auctions/categories.html", {
+        "categories": categories
+    })
+
+
+def show_category(request, category):
+    """ Shows a list of active listings filtered by category. """
+    
+    # get list of filtered active listings
+    listings = Listing.objects.filter(is_active=True, category=category)
+    return render(request, "auctions/category.html", {
+        "listings": listings,
+        # "category": TODO
+    })

@@ -24,6 +24,18 @@ class Listing(models.Model):
             return highest_bid.bidder
         return None
     
+    @classmethod
+    def category_counts(cls):
+        """ Returns dictionary mapping {category id : (category name, count)}. """
+        
+        d = dict()
+        for cat in cls.CATEGORIES:
+            cat_id = cat[0]
+            cat_name = cat[1]
+            cat_count = cls.objects.filter(category=cat_id, is_active=True).count()
+            d[cat_id] = (cat_name, cat_count)
+        return d
+
     CATEGORIES = [
         ("fashion", "Fashion"),
         ("toys", "Toys"),

@@ -7,6 +7,15 @@ class User(AbstractUser):
     pass
 
 
+class Category(models.Model):
+    """ Class to represent a category. """
+
+    name = models.CharField(max_length=100)
+    
+    def __str__(self):
+        return f"{self.name}"
+
+
 class Listing(models.Model):
     """ Class to represent a listing. """
     
@@ -23,31 +32,40 @@ class Listing(models.Model):
         if not self.is_active and highest_bid:
             return highest_bid.bidder
         return None
-    
+
     @classmethod
     def category_counts(cls):
         """ Returns dictionary mapping {category id : (category name, count)}. """
         
+        # d = dict()
+        # for cat in cls.CATEGORIES:
+        #     cat_id = cat[0]
+        #     cat_name = cat[1]
+        #     cat_count = cls.objects.filter(category=cat_id, is_active=True).count()
+        #     d[cat_id] = (cat_name, cat_count)
+        # return d
         d = dict()
-        for cat in cls.CATEGORIES:
-            cat_id = cat[0]
-            cat_name = cat[1]
-            cat_count = cls.objects.filter(category=cat_id, is_active=True).count()
+        for cat in Category.objects.all():
+            cat_id = cat.id
+            cat_name = cat.name
+            cat_count = cls.objects.filter(category=cat, is_active=True).count()
             d[cat_id] = (cat_name, cat_count)
         return d
 
-    CATEGORIES = [
-        ("fashion", "Fashion"),
-        ("toys", "Toys"),
-        ("electronics", "Electronics"),
-        ("home", "Home"),
-        ("other", "Other")
-    ]
+
+    # CATEGORIES = [
+    #     ("fashion", "Fashion"),
+    #     ("toys", "Toys"),
+    #     ("electronics", "Electronics"),
+    #     ("home", "Home"),
+    #     ("other", "Other")
+    # ]
     title = models.CharField(max_length=100)
     description = models.TextField()
     starting_bid = models.DecimalField(max_digits=9, decimal_places=2, default=0)
     image_url = models.URLField(blank=True, null=True)
-    category = models.CharField(max_length=100, choices=CATEGORIES)
+    # category = models.CharField(max_length=100, choices=CATEGORIES)
+    category = models.ForeignKey(Category, on_delete=models.SET_NULL, null=True)
     created_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name='listings', null=True)
     created_time = models.DateTimeField(auto_now_add=True, null=True)
     last_modified = models.DateTimeField(auto_now=True, null=True)
@@ -67,5 +85,3 @@ class Comment(models.Model):
     created_time = models.DateTimeField(auto_now_add=True, null=True)
     listing = models.ForeignKey(Listing, on_delete=models.CASCADE, related_name='comments', null=True)
     text = models.TextField(blank=True, null=True)
-
-

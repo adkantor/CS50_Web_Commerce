@@ -2,7 +2,36 @@ body {
     padding: 10px;
 }
 
+/* ------------------------- */
+/* show listing page styling */
+/* ------------------------- */
+.showlisting-image {
+    max-height: 150px;
+    width: auto;
+}
 
+.showlisting-header {
+    margin-top: 50px;
+}
+
+.comment-form {
+    margin-top: 50px;
+}
+
+.comment-form-textarea {
+    width: 100%;
+    margin-bottom: 20px;
+    border: 1px solid #3d397c;
+    float: right;
+    border-radius: 5px;
+    padding-left: 40px;
+    padding-right: 30px;
+    padding-top: 10px
+}
+
+/* ---------------------- */
+/* formatting of comments */
+/* ---------------------- */
 .darker {
     border: 1px solid #3d397c;
     background-color: rgb(153, 147, 245);

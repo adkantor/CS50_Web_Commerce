@@ -37,7 +37,8 @@
         <div class="row align-self-center">
             {% if listing.image_url %}
                 <!-- if an image url is available -->
-                <img class="img-fluid" src="{{ listing.image_url }}" alt="{{ listing.title }}">
+                <img class="showlisting-image" src="{{ listing.image_url }}" alt="{{ listing.title }}">
+                
             {% else %}                    
                 <p class="text-center">No image</p>                    
             {% endif %}
@@ -108,21 +109,21 @@
         {% endif %}
 
         <!-- listing other details -->
-        <div class="row">
+        <div class="row showlisting-header">
             <h3>Details</h3>
         </div>
         <div class="row">
             <ul>
-                <li>Category: {{ listing.category}}</li>
-                <li>Listed by: {{ listing.created_by}}</li>
-                <li>Created on: {{ listing.created_time}}</li>
-                <li>Last modified: {{ listing.last_modified}}</li>
+                <li><strong>Category:</strong> {{ listing.category}}</li>
+                <li><strong>Listed by:</strong> {{ listing.created_by}}</li>
+                <li><strong>Created on:</strong> {{ listing.created_time}}</li>
+                <li><strong>Last modified:</strong> {{ listing.last_modified}}</li>
             </ul>
         </div>
 
         <!-- COMMENTS -->
         <hr>
-        <div class="row">
+        <div class="row showlisting-header">
             <h3>Comments</h3>
         </div>
         <!-- list of comments -->
@@ -141,8 +142,7 @@
             <form class="comment-form" id="comment-form" action="{% url 'make_comment' %}" method="post">
                 {% csrf_token %}
                 <input type="hidden" name="listingId" value="{{ listing.id }}">
-                <textarea form="comment-form" name="commentText" minlength="1" rows="5" cols="50">
-                </textarea>
+                <textarea class="comment-form-textarea" form="comment-form" name="commentText" minlength="1" rows="5" placeholder="Write your comment here..."></textarea>
                 <div>
                     <button class="btn btn-primary" type=submit>Submit</button>
                 </div>

@@ -7,7 +7,7 @@ from django.shortcuts import render
 from django.urls import reverse
 from django import forms
 
-from .models import User, Listing, Bid, Comment
+from .models import User, Listing, Bid, Comment, Category
 
 
 class ListingForm(forms.ModelForm):
@@ -265,12 +265,14 @@ def list_categories(request):
     })
 
 
-def show_category(request, category):
+def show_category(request, category_id):
     """ Shows a list of active listings filtered by category. """
     
     # get list of filtered active listings
-    listings = Listing.objects.filter(is_active=True, category=category)
+    listings = Listing.objects.filter(is_active=True, category=category_id)
+    category = Category.objects.get(pk=category_id)
+    
     return render(request, "auctions/category.html", {
         "listings": listings,
-        # "category": TODO
+        "category": category
     })

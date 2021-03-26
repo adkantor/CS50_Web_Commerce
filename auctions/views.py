@@ -112,8 +112,13 @@ def show_listing(request, listing_id):
 
     # get listing
     listing = Listing.objects.get(pk=listing_id)
+    # check if user is winner - if so, prepare message
+    message = None 
+    if request.user == listing.winner():
+        message = 'You have win the auction!'
     # show the page
     return render(request, "auctions/showlisting.html", {
+        "message": message,
         "listing": listing,
     })
 

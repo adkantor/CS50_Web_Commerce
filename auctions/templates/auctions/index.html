@@ -10,7 +10,7 @@
                 <div class="col-md-4 align-self-center">
                     {% if listing.image_url %}
                         <!-- if an image url is available -->
-                        <img class="img-fluid" src="{{ listing.image_url }}" alt="{{ listing.title }}">
+                        <img class="showlisting-image" src="{{ listing.image_url }}" alt="{{ listing.title }}">
                     {% else %}                    
                         <p class="text-center">No image</p>                    
                     {% endif %}
@@ -19,7 +19,7 @@
                     <div class="card-body">
                         <h5 class="card-title">{{ listing.title }}</h5>
                         <p class="card-text"><b>Price:</b> <span class="credit-sign">$</span>{{ listing.current_bid.price|default:listing.starting_bid }}</p>
-                        <p class="card-text">{{ listing.description }}</p>
+                        <p class="card-text">{{ listing.description|truncatewords:30 }}</p>
                         <p class="card-text"><small class="text-muted">Created {{ listing.created_time }}</small></p>
                     </div>
                 </div>

@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Changa&display=swap');
+
 @font-face {
     font-family: "Aurebesh";
     src: url("fonts/Aurebesh.otf");
@@ -12,8 +14,14 @@
     font-family: "Aurebesh" !important;
 }
 
+.main-logo {
+    font-family:  "Aurebesh" !important;
+    font-weight: bold;
+}
+
 body {
     padding: 10px;
+    font-family: 'Changa', sans-serif !important;
 }
 
 /* ------------------------- */

@@ -48,7 +48,7 @@
             <p class="">{{ listing.description }}</p>
         </div>
         <div class="row">
-            <p class="current-bid-price">${{ listing.current_bid.price|default:listing.starting_bid }}</p>
+            <p class="current-bid-price"><span class="credit-sign">$</span>{{ listing.current_bid.price|default:listing.starting_bid }}</p>
         </div>
         <div class="row">
             <p class="">

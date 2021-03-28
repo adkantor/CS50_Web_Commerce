@@ -1,3 +1,17 @@
+@font-face {
+    font-family: "Aurebesh";
+    src: url("fonts/Aurebesh.otf");
+}
+@font-face {
+    font-family: "Aurebesh";
+    src: url("fonts/Aurebesh Bold.otf");
+    font-weight: bold;
+}
+
+.credit-sign {
+    font-family: "Aurebesh" !important;
+}
+
 body {
     padding: 10px;
 }

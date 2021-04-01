@@ -160,7 +160,7 @@ def make_bid(request):
     listing = Listing.objects.get(pk=listing_id)
     # get bid price
     bid_price = float(request.POST.get('bidPrice'))
-    
+
     # if there is a bid and bid price not higher then current bid -> error
     if listing.current_bid() and bid_price <= listing.current_bid().price:
         # show error message
@@ -169,6 +169,13 @@ def make_bid(request):
             "listing": listing,
         })
     
+    elif bid_price <= listing.starting_bid:
+        # show error message
+        return render(request, "auctions/showlisting.html", {
+            "message": "Invalid bid (bid price must be higher than starting bid)",
+            "listing": listing,
+        })
+
     else:       
         # create the new bid
         bid = Bid(

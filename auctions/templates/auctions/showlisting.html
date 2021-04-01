@@ -135,17 +135,30 @@
             </div>
         {% endfor %}
 
-        <!-- form to record new comment -->
-        <div class="row">   
-            <form class="comment-form" id="comment-form" action="{% url 'make_comment' %}" method="post">
-                {% csrf_token %}
-                <input type="hidden" name="listingId" value="{{ listing.id }}">
-                <textarea class="comment-form-textarea" form="comment-form" name="commentText" minlength="1" rows="5" placeholder="Write your comment here..."></textarea>
-                <div>
-                    <button class="btn btn-primary" type=submit>Submit</button>
+
+        <!-- posting comments is allowed for authenticated user only -->
+        {% if user.is_authenticated %}
+
+            <!-- form to record new comment -->
+            <div class="row">   
+                <form class="comment-form" id="comment-form" action="{% url 'make_comment' %}" method="post">
+                    {% csrf_token %}
+                    <input type="hidden" name="listingId" value="{{ listing.id }}">
+                    <textarea class="comment-form-textarea" form="comment-form" name="commentText" minlength="1" rows="5" placeholder="Write your comment here..."></textarea>
+                    <div>
+                        <button class="btn btn-primary" type=submit>Submit</button>
+                    </div>
+                </form> 
+            </div>
+
+            {% else %}
+            
+                <!-- user is not authenticated -->
+                <div class="row">
+                    <p class="">Please <a href="{% url 'login' %}?next={% url 'show_listing' listing.id %}">log in</a> to post a comment</p>
                 </div>
-            </form> 
-        </div>
+
+        {% endif %}
 
     </div>
 

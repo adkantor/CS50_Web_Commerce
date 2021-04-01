@@ -6,6 +6,7 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
 from django.urls import reverse
 from django import forms
+from django.contrib import messages
 
 from .models import User, Listing, Bid, Comment, Category
 
@@ -42,9 +43,8 @@ def login_view(request):
             else:
                 return HttpResponseRedirect(reverse("index"))
         else:
-            return render(request, "auctions/login.html", {
-                "message": "Invalid username and/or password."
-            })
+            messages.error(request, "Invalid username and/or password.")
+            return render(request, "auctions/login.html")
     else:
         return render(request, "auctions/login.html")
 
@@ -63,18 +63,16 @@ def register(request):
         password = request.POST["password"]
         confirmation = request.POST["confirmation"]
         if password != confirmation:
-            return render(request, "auctions/register.html", {
-                "message": "Passwords must match."
-            })
+            messages.error(request, "Passwords must match.")
+            return render(request, "auctions/register.html")
 
         # Attempt to create new user
         try:
             user = User.objects.create_user(username, email, password)
             user.save()
         except IntegrityError:
-            return render(request, "auctions/register.html", {
-                "message": "Username already taken."
-            })
+            messages.error(request, "Username already taken.")
+            return render(request, "auctions/register.html")
         login(request, user)
         return HttpResponseRedirect(reverse("index"))
     else:
@@ -96,8 +94,8 @@ def create_listing(request):
             return HttpResponseRedirect(reverse("index"))
         else:
             # return the filled-in form with error message
+            messages.error(request, "Invalid form data.")
             return render(request, "auctions/createlisting.html", {
-                "message": "Invalid form data",
                 "form": form
             })
     
@@ -113,12 +111,10 @@ def show_listing(request, listing_id):
     # get listing
     listing = Listing.objects.get(pk=listing_id)
     # check if user is winner - if so, prepare message
-    message = None 
     if request.user == listing.winner():
-        message = 'You have win the auction!'
+        messages.info(request, 'You have win the auction!') 
     # show the page
     return render(request, "auctions/showlisting.html", {
-        "message": message,
         "listing": listing,
     })
 
@@ -164,15 +160,15 @@ def make_bid(request):
     # if there is a bid and bid price not higher then current bid -> error
     if listing.current_bid() and bid_price <= listing.current_bid().price:
         # show error message
+        messages.error(request, "Invalid bid (new bid price must be higher than current bid)")
         return render(request, "auctions/showlisting.html", {
-            "message": "Invalid bid (new bid price must be higher than current bid)",
             "listing": listing,
         })
     
     elif bid_price <= listing.starting_bid:
         # show error message
+        messages.error(request, "Invalid bid (bid price must be higher than starting bid)")
         return render(request, "auctions/showlisting.html", {
-            "message": "Invalid bid (bid price must be higher than starting bid)",
             "listing": listing,
         })
 
@@ -199,8 +195,8 @@ def close_auction(request):
     # check if user is the one who created the listing
     if listing.created_by.id != request.user.id:
         # show error message
+        messages.error(request, "You have no permission to perform this operation!")
         return render(request, "auctions/showlisting.html", {
-            "message": "You have no permission to perform this operation!",
             "listing": listing,
         })
 
@@ -208,9 +204,8 @@ def close_auction(request):
     listing.is_active = False
     listing.save()
 
-    print(listing.winner())
+    messages.warning(request, "Auction has been closed.")
     return render(request, "auctions/showlisting.html", {
-        "message": "Auction has been closed.",
         "listing": listing,
     })
 

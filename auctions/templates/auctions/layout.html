@@ -50,6 +50,16 @@
             {% endif %}
         </ul>
         <hr>
+
+        <!-- Flash messages -->
+        {% if messages %}    
+            {% for msg in messages %}
+                <div class="alert {{msg.tags}}" role="alert">
+                    {{msg | safe}}
+                </div>
+            {% endfor %}
+        {% endif %}
+
         {% block body %}
         {% endblock %}
     </body>

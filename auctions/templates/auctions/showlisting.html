@@ -4,10 +4,6 @@
 
 {% block body %}
 
-    {% if message %}
-        <div>{{ message }}</div>
-    {% endif %}
-
     <h2>
         Listing: {{ listing.title }} {% if not listing.is_active %}(Closed){% endif %}
     </h2>

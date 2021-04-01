@@ -1,5 +1,7 @@
 {% extends "auctions/layout.html" %}
 
+{% load l10n %}
+
 {% block body %}
 
     {% if message %}
@@ -74,7 +76,7 @@
                             {% csrf_token %}
                             <label for="bidPrice">Place a bid:</label>
                             <input type="hidden" name="listingId" value="{{ listing.id }}">
-                            <input type="number" id="bidPrice" name="bidPrice" min="{{ listing.current_bid.price|default:listing.starting_bid|add:'1' }}" step="0.01">
+                            <input type="number" id="bidPrice" name="bidPrice" min="{{ listing.current_bid.price|default:listing.starting_bid|add:'1'|unlocalize }}" step="0.01">
                             <div>
                                 <button class="btn btn-primary" type=submit>Submit</button>
                             </div>
